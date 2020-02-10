@@ -1,0 +1,4 @@
+set_io CLK 21
+set_io SW_START 112
+set_io SW_STOP 113
+set_io DATA 114

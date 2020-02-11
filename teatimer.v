@@ -44,14 +44,19 @@ module teatimer (input clk,
             if (sw_stop) begin
                 sec_counter <= 0;
                 sec16_counter <= 0;
+                framebuf <= 0;
             end
 
             // Turn on appropriate LEDs based on counters:
             //     Second counter turns on blue pixels
             //     16-second counter turns on green pixels
             // Sub-pixel order in framebuf is G, R, B (24 bits per pixel)
-            framebuf[sec_counter*24+23:sec_counter*24+16] <= 255;
-            framebuf[sec16_counter*24+7:sec16_counter*24] <= 255;
+            if (sec_counter > 0) begin
+                framebuf[(sec_counter-1)*24+23:(sec_counter-1)*24+16] <= 255;
+            end
+            if (sec16_counter > 0) begin
+                framebuf[(sec16_counter-1)*24+7:(sec16_counter-1)*24] <= 255;
+            end
         end
     end
 endmodule

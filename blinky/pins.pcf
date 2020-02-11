@@ -1,0 +1,6 @@
+set_io CLK 21
+set_io LED_GRN 95
+set_io LED_RED0 99
+set_io LED_RED1 98
+set_io LED_RED2 97
+set_io LED_RED3 96

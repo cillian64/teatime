@@ -44,13 +44,13 @@ module neopixel (input clk,
                     // one from the framebuf
                     shift_reg <= framebuf[state];
                     bit_count <= 8;
+                    state <= state + 1;
                 end else begin
                     shift_reg <= shift_reg >> 1;
                     bit_count <= bit_count - 1;
                 end
                 data <= shift_reg[0];
             end
-            state <= state + 1;
             if (state == 48) begin
                 // We have finished the framebuffer so sync window next
                 state <= 0;

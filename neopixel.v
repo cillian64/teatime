@@ -16,7 +16,7 @@ module neopixel (input clk,
     // Counter is used for counting the bits out of a byte.
     reg [3:0] bit_count;
 
-    // Counter used for metering out the 70us sync signal (800kHz * 80us = 56)
+    // Counter used for metering out the 70us sync signal
     reg [5:0] sync_counter;
 
     always @(posedge clk) begin
@@ -30,16 +30,18 @@ module neopixel (input clk,
             if (state == 0) begin
                 // We are in the sync window, so output zero.
                 data <= 0;
-                if (sync_counter == 56) begin
+                if (sync_counter == 56) begin  // (800kHz * 80us = 56)
                     // Sync window is done, return to clocking bits.
                     state <= 1;
-                    sync_counter <= 0;
+                    sync_counter <= 0;  // Reset for next time
                 end else begin
                     // Sync window
                     sync_counter <= sync_counter + 1;
                 end
             end else begin
                 if (bit_count == 0) begin
+                    // Finished clocking the last byte, so get the next
+                    // one from the framebuf
                     shift_reg <= framebuf[state];
                     bit_count <= 8;
                 end else begin
@@ -49,6 +51,10 @@ module neopixel (input clk,
                 data <= shift_reg[0];
             end
             state <= state + 1;
+            if (state == 48) begin
+                // We have finished the framebuffer so sync window next
+                state <= 0;
+            end
         end
     end
 endmodule

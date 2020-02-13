@@ -44,7 +44,7 @@ viz: $(JSON_FILE)
 		--package $(PACKAGE) --gui
 
 testbench: $(VERILOG_SRCS) testbench.cpp
-	verilator -Wall --cc $(VERILOG_SRCS) --exe testbench.cpp --trace-fst
+	verilator -Wall --cc $(VERILOG_SRCS) --exe testbench.cpp --trace
 	make -j -C obj_dir -f Vtop.mk Vtop
 
 clean:

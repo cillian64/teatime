@@ -18,16 +18,16 @@ int main(int argc, char **argv, char **env) {
 
     VerilatedVcdC *tfp = new VerilatedVcdC;
     top->trace(tfp, 99);  // Trace 99 levels of hierarchy
-    tfp->open("teatime.fst");
+    tfp->open("teatime.vcd");
 
-    // Let's run for 10 seconds = 240,000,000 ticks @ 12MHz, 2 ticks per clk
+    // Let's run for 10 seconds = 16,000,000 ticks @ 800kHz, 2 ticks per clk
 
-    while (!Verilated::gotFinish() && main_time < 240000000ul) {
+    while (!Verilated::gotFinish() && main_time < 16000000ul) {
         // Release reset after 10 clocks
         top->RST_N = main_time > 20;
 
-        // Push start button after 24,000,000 clocks = 1 second
-        top->SW_START = main_time > 24000000;
+        // Push start button for the first 1 second = 1,600,000 clocks
+        top->SW_START = main_time < 1600000;
 
         // Toggle clock with period of 2 ticks:
         top->CLK = main_time % 2;

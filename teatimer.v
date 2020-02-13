@@ -24,7 +24,7 @@ module teatimer (input clk,
                 framebuf <= 0;
             end else if (sec_counter == 15 && sec16_counter == 15) begin
                 // Done state: all LEDs white
-                for (i = 0; i < 48; i++) begin
+                for (i = 0; i < 48; i = i + 1) begin
                     framebuf[8*i +: 8] <= 1;
                 end
             end else begin

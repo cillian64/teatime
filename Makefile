@@ -43,6 +43,10 @@ viz: $(JSON_FILE)
 	nextpnr-ice40 --hx1k --json $(JSON_FILE) --pcf $(PINS_FILE) \
 		--package $(PACKAGE) --gui
 
+testbench: $(VERILOG_SRCS) testbench.cpp
+	verilator -Wall --cc $(VERILOG_SRCS) --exe testbench.cpp --trace-fst
+	make -j -C obj_dir -f Vtop.mk Vtop
+
 clean:
 	rm -f $(BIN_FILE) $(ASC_FILE) $(JSON_FILE) $(YOSYS_LOG)
 

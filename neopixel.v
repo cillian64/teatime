@@ -42,7 +42,7 @@ module neopixel (input clk,
                 if (bit_count == 0) begin
                     // Finished clocking the last byte, so get the next
                     // one from the framebuf
-                    shift_reg <= framebuf[state];
+                    shift_reg <= framebuf[8 * state +: 8];
                     bit_count <= 8;
                     state <= state + 1;
                 end else begin

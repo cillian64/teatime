@@ -25,7 +25,7 @@ module teatimer (input clk,
             end else if (sec_counter == 15 && sec16_counter == 15) begin
                 // Done state: all LEDs white
                 for (i = 0; i < 48; i++) begin
-                    framebuf[8*i+7:8*i] <= 1;
+                    framebuf[8*i +: 8] <= 1;
                 end
             end else begin
                 // Counting state
@@ -52,10 +52,10 @@ module teatimer (input clk,
             //     16-second counter turns on green pixels
             // Sub-pixel order in framebuf is G, R, B (24 bits per pixel)
             if (sec_counter > 0) begin
-                framebuf[(sec_counter-1)*24+23:(sec_counter-1)*24+16] <= 255;
+                framebuf[(sec_counter-1)*24+16 +: 8] <= 255;
             end
             if (sec16_counter > 0) begin
-                framebuf[(sec16_counter-1)*24+7:(sec16_counter-1)*24] <= 255;
+                framebuf[(sec16_counter-1)*24 +: 8] <= 255;
             end
         end
     end

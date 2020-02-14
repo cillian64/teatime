@@ -1,0 +1,39 @@
+fsm neopixel {
+    in wire framebuf[384];
+    out data;
+
+    const uint num_leds = 16;
+    // We consider the sync window as a fake "byte" at the end of the string
+    const uint num_bytes = num_leds * 3;
+
+    uint($clog2(num_bytes)) byte_counter;
+
+    void main() {
+        // First, send the sync window
+        for (uint i = 0; i < 1200; i++) {
+            data = 0;
+            fence;
+        }
+
+        // Now send each byte
+        for (uint i = 0; i < num_bytes; i++) {
+            uint(8) bits = framebuf[3*i+7:3*i];
+            // Clock out each bit in the byte
+            for (uint j = 0; j < 8; j++) {
+                // For the timing of the waveform of each byte, chop up into
+                // 50ns chunks.
+                // For a 0 bit, spend 8 ticks low then 17 ticks high
+                // For a 1 bit, spend 16 ticks low then 9 ticks high
+                for (uint k = 0; k < 25; k++) {
+                    if (bits[0] == 0) {
+                        data = k >= 8;
+                    } else /* bits[0] == 1 */ {
+                        data = k >= 16;
+                    }
+                    fence;
+                }
+                bits >>= 1;
+            }
+        }
+    }
+}

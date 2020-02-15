@@ -26,12 +26,17 @@ module top(input CLK,
     wire clk_1;
     assign clk_1 = divide800k[19];
 
-    // Framebuffer array: 16 neopixels = 48 LEDs, each 8-bit. Order is GBR
-    wire [383:0]framebuf;
+    // Instantiate a BRAM for framebuf
+    // Share clocks with timer and neopixel modules:
+    // wclk comes from the 1Hz teatimer clock
+    // rclk comes from the 800kHz neopixel clock
+    wire write_en;
+    wire [8:0] raddr, waddr;
+    wire [7:0] din, dout;
+    ram framebuf (din, write_en, waddr, clk_1, raddr, clk_800k, dout);
 
     // Instantiate teatimer and display
-    wire nrst;
-    assign nrst = 1;
-    teatimer mytt (clk_1, nrst, SW_START, SW_STOP, framebuf);
-    neopixel mynp (clk_800k, nrst, framebuf, DATA);
+ //   teatimer mytt (clk_1, clk_800k, 1, SW_START, SW_STOP, waddr, din,
+ //                  write_en);
+    neopixel mynp (clk_800k, 1, raddr, dout, DATA);
 endmodule

@@ -1,7 +1,8 @@
 // clk should be 20MHz, used for clocking out data to the neopixel string
 module neopixel (input clk,
                  input nrst,
-                 input wire [383:0]framebuf,
+                 output reg [8:0] raddr,
+                 input wire [7:0] din,
                  output reg data);
 
     // State counters:
@@ -14,7 +15,7 @@ module neopixel (input clk,
     reg [3:0] bit_count;
 
     // Used for timing the waveform within each bit
-    reg [6:0] waveform_timer;
+    reg [5:0] waveform_timer;
 
     // Counter used for metering out the 70us sync signal
     reg [10:0] sync_counter;
@@ -40,20 +41,34 @@ module neopixel (input clk,
                 if (sync_counter == 1599) begin  // (20MHz * 80us = 1600)
                     // Sync window is done, next state returns to clocking bits
                     state <= 1;
+                    r_addr <= 0;
                     sync_counter <= 0;  // Reset for next time
                 end else begin
                     // Next state is still in sync counter.
                     sync_counter <= sync_counter + 1;
                 end
             end else begin
-                if (waveform_timer == 124) begin
+                if (waveform_timer == 24) begin
                     // We have finished a single bit's waveform
                     waveform_timer <= 0;
 
                     if (bit_count == 0) begin
                         // Finished bits out of a byte, so get the next byte
-                        // from the framebuf
-                        shift_reg <= framebuf[8 * (state - 1) +: 8];
+                        // from the framebuffer.  Note that there is
+                        // a deliberate latency here: We set the address of the
+                        // next byte to read while we read the current one.
+                        // TODO: This needs some more work. At the moment
+                        // one byte will end up the wrong side of the sync
+                        // window!
+                        if (raddr % 4 == 2) begin
+                            // Framebuffer is stored with 4 bytes per LED
+                            // but our LEDs only have 24-bit colour. So skip
+                            // every 4th byte.
+                            r_addr <= r_addr + 2;
+                        end else begin
+                            r_addr <= r_addr + 1;
+                        end
+                        shift_reg <= din;
                         bit_count <= 8;
 
                         // Are we finished clocking bytes?

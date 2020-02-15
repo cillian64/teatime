@@ -1,7 +1,7 @@
 // clk should be 20MHz, used for clocking out data to the neopixel string
-module neopixel (input clk,
+module neopixel (input clk_20M,
                  input nrst,
-                 output reg [8:0] raddr,
+                 output reg [8:0] r_addr,
                  input wire [7:0] din,
                  output reg data);
 
@@ -23,7 +23,7 @@ module neopixel (input clk,
     // Shift register for clocking out the bits in a byte.
     reg [7:0] shift_reg;
 
-    always @(posedge clk) begin
+    always @(posedge clk_20M) begin
         if (!nrst) begin
             // Initialise counters
             state <= 0;
@@ -60,7 +60,7 @@ module neopixel (input clk,
                         // TODO: This needs some more work. At the moment
                         // one byte will end up the wrong side of the sync
                         // window!
-                        if (raddr % 4 == 2) begin
+                        if (r_addr % 4 == 2) begin
                             // Framebuffer is stored with 4 bytes per LED
                             // but our LEDs only have 24-bit colour. So skip
                             // every 4th byte.

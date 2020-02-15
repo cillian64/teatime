@@ -3,7 +3,7 @@ module teatimer (input clk_1,
                  input nrst,
                  input sw_start,
                  input sw_stop,
-                 output reg [8:0] waddr,
+                 output reg [8:0] w_addr,
                  output reg [7:0] dout,
                  output reg write_en);
 
@@ -55,7 +55,7 @@ module teatimer (input clk_1,
         // writing continually.  We just change the data lines depending on
         // what the LED at a particular location should display, depending on
         // state (i.e. nrst, sec_counter, sec16_counter).
-        if (waddr == 63) begin
+        if (w_addr == 63) begin
             w_addr <= 0;
         end else begin
             w_addr <= w_addr + 1;

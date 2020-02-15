@@ -1,8 +1,5 @@
 // clk should be 20MHz, used for clocking out data to the neopixel string
 module neopixel (input clk_20M,
-                 input nrst,
-                 output reg [8:0] r_addr,
-                 input wire [7:0] din,
                  output reg data);
 
     // State counters:
@@ -54,21 +51,17 @@ module neopixel (input clk_20M,
 
                     if (bit_count == 0) begin
                         // Finished bits out of a byte, so get the next byte
-                        // from the framebuffer.  Note that there is
-                        // a deliberate latency here: We set the address of the
-                        // next byte to read while we read the current one.
-                        // TODO: This needs some more work. At the moment
-                        // one byte will end up the wrong side of the sync
-                        // window!
-                        if (r_addr % 4 == 2) begin
-                            // Framebuffer is stored with 4 bytes per LED
-                            // but our LEDs only have 24-bit colour. So skip
-                            // every 4th byte.
-                            r_addr <= r_addr + 2;
-                        end else begin
-                            r_addr <= r_addr + 1;
-                        end
-                        shift_reg <= din;
+                        if (state == 1) shift_reg <= 255;
+                        else if (state == 5) shift_reg <= 255;
+                        else if (state == 9) shift_reg <= 255;
+                        else if (state == 10) shift_reg <= 255;
+                        else if (state == 14) shift_reg <= 255;
+                        else if (state == 18) shift_reg <= 255;
+                        else if (state == 19) shift_reg <= 255;
+                        else if (state == 23) shift_reg <= 255;
+                        else if (state == 27) shift_reg <= 255;
+                        else shift_reg <= 0;
+
                         bit_count <= 8;
 
                         // Are we finished clocking bytes?

@@ -10,5 +10,5 @@ module top(input CLK_12M,
     wire locked;
     pll mypll(CLK_12M, clk_20M, locked);
 
-    neopixel mynp (clk_20M, DATA);
+    neopixel mynp (clk_20M, locked, DATA);
 endmodule

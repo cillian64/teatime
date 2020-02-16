@@ -1,5 +1,8 @@
+`default_nettype none
+
 // clk should be 20MHz, used for clocking out data to the neopixel string
 module neopixel (input clk_20M,
+                 input nrst,
                  output reg data);
 
     // State counters:
@@ -38,8 +41,12 @@ module neopixel (input clk_20M,
                 if (sync_counter == 1599) begin  // (20MHz * 80us = 1600)
                     // Sync window is done, next state returns to clocking bits
                     state <= 1;
-                    r_addr <= 0;
                     sync_counter <= 0;  // Reset for next time
+                    // TODO: We essentially need to pre-load the shift register
+                    // here, otherwise it will get a garbage value at the
+                    // beginning of state 1.
+                    // TODO: we might also need to reset bit_count or
+                    // waveform_timer??
                 end else begin
                     // Next state is still in sync counter.
                     sync_counter <= sync_counter + 1;
@@ -51,18 +58,18 @@ module neopixel (input clk_20M,
 
                     if (bit_count == 0) begin
                         // Finished bits out of a byte, so get the next byte
-                        if (state == 1) shift_reg <= 255;
-                        else if (state == 5) shift_reg <= 255;
-                        else if (state == 9) shift_reg <= 255;
-                        else if (state == 10) shift_reg <= 255;
-                        else if (state == 14) shift_reg <= 255;
-                        else if (state == 18) shift_reg <= 255;
-                        else if (state == 19) shift_reg <= 255;
-                        else if (state == 23) shift_reg <= 255;
-                        else if (state == 27) shift_reg <= 255;
+                        if (state == 8) shift_reg <= 255;  // G
+//                        else if (state == 2) shift_reg <= 255; // R
+//                        else if (state == 3) shift_reg <= 255; // B
+//                        else if (state == 7) shift_reg <= 255;  // G
+//                        else if (state == 8) shift_reg <= 255;  // R
+//                        else if (state == 9) shift_reg <= 255;  // B
+//                        else if (state == 13) shift_reg <= 255;  // G
+//                        else if (state == 14) shift_reg <= 255;  // R
+//                        else if (state == 15) shift_reg <= 255;  // B
                         else shift_reg <= 0;
 
-                        bit_count <= 8;
+                        bit_count <= 7;
 
                         // Are we finished clocking bytes?
                         if (state == 48) begin
@@ -74,7 +81,7 @@ module neopixel (input clk_20M,
                         end
                     end else begin
                         // Just get the next bit from this byte.
-                        shift_reg <= shift_reg >> 1;
+                        shift_reg <= shift_reg << 1;
                         bit_count <= bit_count - 1;
                     end
                 end else begin
@@ -82,17 +89,17 @@ module neopixel (input clk_20M,
                 end
 
                 // Output depends on position in waveform and current data bit
-                if (shift_reg[0] == 0) begin
-                    if (waveform_timer >= 8) begin
-                        data <= 1;
-                    end else begin
+                if (shift_reg[7] == 0) begin
+                    if (waveform_timer >= 6) begin
                         data <= 0;
+                    end else begin
+                        data <= 1;
                     end
-                end else begin // shift_ref[0] == 1
-                    if (waveform_timer >= 16) begin
-                        data <= 1;
-                    end else begin
+                end else begin // shift_reg[0] == 1
+                    if (waveform_timer >= 12) begin
                         data <= 0;
+                    end else begin
+                        data <= 1;
                     end
                 end
             end

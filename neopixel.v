@@ -58,15 +58,19 @@ module neopixel (input clk_20M,
 
                     if (bit_count == 0) begin
                         // Finished bits out of a byte, so get the next byte
-                        if (state == 8) shift_reg <= 255;  // G
-//                        else if (state == 2) shift_reg <= 255; // R
-//                        else if (state == 3) shift_reg <= 255; // B
-//                        else if (state == 7) shift_reg <= 255;  // G
-//                        else if (state == 8) shift_reg <= 255;  // R
-//                        else if (state == 9) shift_reg <= 255;  // B
-//                        else if (state == 13) shift_reg <= 255;  // G
-//                        else if (state == 14) shift_reg <= 255;  // R
-//                        else if (state == 15) shift_reg <= 255;  // B
+                        // Pixel order is G, R, B
+                        // Note that all of these are 1-early because we need
+                        // to get the shift register ready in time for the next
+                        // clock
+                        if (state == 0) shift_reg <= 255;  // G
+                        else if (state == 4) shift_reg <= 255; // R
+                        else if (state == 8) shift_reg <= 255; // B
+                        else if (state == 9) shift_reg <= 255;  // G
+                        else if (state == 13) shift_reg <= 255;  // R
+                        else if (state == 17) shift_reg <= 255;  // B
+                        else if (state == 18) shift_reg <= 255;  // G
+                        else if (state == 22) shift_reg <= 255;  // R
+                        else if (state == 26) shift_reg <= 255;  // B
                         else shift_reg <= 0;
 
                         bit_count <= 7;
